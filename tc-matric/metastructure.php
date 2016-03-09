@@ -1,16 +1,19 @@
 <?php
 // nom 	: metastructure.php
-// auteur 	: Paul Fi�vre
+// auteur 	: Paul Fièvre
 // date 	: 11/05/10
 // maj 		: 27/05/10
-// appelant : (� la demande)
-// appel� 	: aucun
-// param�tre : aucun
-// fonction : Permet de contruitre la m�tastructure de requ�te et d'affichage des textes
+// appelant : (à la demande)
+// appelé 	: aucun
+// paramètre : aucun
+// fonction : Permet de contruitre la métastructure de requête et d'affichage des textes
 //
 
+$docdir = "./";
+$metafile = "./metastructure.xml";
+
 ini_set('max_execution_time','600');
-$fsortie=fopen("./metastructure.xml","w");
+$fsortie=fopen($metafile,"w");
 
 fwrite($fsortie, "<?xml version='1.0' encoding='iso-8859-1'?>
 <metastructure>
@@ -27,182 +30,225 @@ fwrite($fsortie, "<?xml version='1.0' encoding='iso-8859-1'?>
 ");
 $z=0;
 $n=1;
-if ($handle = opendir('../documents')) {
-	// INITIALiSATION DES VARIABLES POUR CHAQUE TEXTE
-	$totalNombreActes=0;
-	$totalNombrePersonnages=0;
-	$totalNombreScenes=0;
-	$totalNombreRepliques=0;
-	$totalNombreVers=0;
-	$totalNombreLignes=0;
-	$totalNombreMots=0;
-	$totalNombreCaracteres=0;
-	$totalNombrePersonnages=0;
-	$maxNombreActes=0;
-	$maxNombrePersonnages=0;
-	$maxNombreScenes=0;
-	$maxNombreRepliques=0;
-	$maxNombreVers=0;
-	$maxNombreLignes=0;
-	$maxNombreMots=0;
-	$maxNombreCaracteres=0;
-	$maxNombrePersonnages=0;
 
-	$minNombreActes=100;
-	$minNombrePersonnages=1000;
-	$minNombreScenes=1000;
-	$minNombreRepliques=10000;
-	$minNombreVers=100000;
-	$minNombreLignes=100000;
-	$minNombreMots=100000;
-	$minNombreCaracteres=1000000;
-	$minNombrePersonnages=1000;
+$handle =  opendir($docdir);
+// ici on crie si ça ne marche pas ?
 
-	$medNombreActes=0;
-	$medNombrePersonnages=0;
-	$medNombreScenes=0;
-	$medNombreRepliques=0;
-	$medNombreVers=0;
-	$medNombreLignes=0;
-	$medNombreMots=0;
-	$medNombreCaracteres=0;
-	$medNombrePersonnages=0;
-	$auteur='';
-    while (false !== ($file = readdir($handle))) {
-		$z++;
-		$nombreActes=0;
-		$nombrePersonnages=0;
-		$nombreScenes=0;
-		$nombreRepliques=0;
-		$nombreMots=0;
-		$nombreVers=0;
-		$nombreLignes=0;
-		$nombreCaracteres=0;
-		$nombrePersonnages=0;
-		$nombrePhrase=0;
-		$totalNombreMots = 0;
-		$totalNombreCaracteres = 0;
-		$totalNombreLignes = 0;
-		
-		if ($file != "." && $file != "..") {
-			$nomFichierTexte="../documents/".$file;
-			$contenuFichierTexte=file_get_contents ($nomFichierTexte);
-			$xmlContenuFichierTexte=simplexml_load_string( $contenuFichierTexte);
-			$titre=utf8_decode(trim($xmlContenuFichierTexte->text->front->docTitle->titlePart));
-			$auteur=trim($xmlContenuFichierTexte->text->front->docAuthor['id']);
-			$lAuteur=utf8_decode($auteur);
-				$laBio=trim($xmlContenuFichierTexte->text->front->docAuthor['bio']);
-				$laDate=trim($xmlContenuFichierTexte->text->front->docDate['value']);
-				$naissance=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['born']));
-				$lieu_naissance=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['born_location']));
-				$deces=trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['death']);
-				$lieu_deces=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['death_location']));
-				$academie=trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['academie']);
-		  
-			$permalien=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->permalien));
-			$monGenre=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->genre));
-			$monInspiration=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->inspiration));
-			$maStructure=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->structure));
-			$monTypeTexte=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->type));
-			$maPeriode=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->periode);
-			$maTaille=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->taille);
-						
-			$set_location=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['location']));
-			$set_country=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['country']));
-			$set_periode=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['periode']));
-		
-			$premiere_location=utf8_decode(trim($xmlContenuFichierTexte->text->front->performance->premiere['location']));
-			$premiere_date=utf8_decode(trim($xmlContenuFichierTexte->text->front->performance->premiere['date']));
-		
-			//************ PERSONNAGES 
-			$varPersonnages="";
-			foreach ($xmlContenuFichierTexte->text->front->castList as $groupeDistribution) {
-				foreach ($groupeDistribution->castItem as $laDistribution) {
+// INITIALiSATION DES VARIABLES POUR CHAQUE TEXTE
+$totalNombreActes=0;
+$totalNombrePersonnages=0;
+$totalNombreScenes=0;
+$totalNombreRepliques=0;
+$totalNombreVers=0;
+$totalNombreLignes=0;
+$totalNombreMots=0;
+$totalNombreCaracteres=0;
+$totalNombrePersonnages=0;
+$maxNombreActes=0;
+$maxNombrePersonnages=0;
+$maxNombreScenes=0;
+$maxNombreRepliques=0;
+$maxNombreVers=0;
+$maxNombreLignes=0;
+$maxNombreMots=0;
+$maxNombreCaracteres=0;
+$maxNombrePersonnages=0;
 
-					$monType="---";
-					$monStatut="---";
-					$monAge="---";
-					$monCivil="---";
-					
-					$monRole=utf8_decode(trim($laDistribution->role));
-					$monRoleId=utf8_decode(trim($laDistribution->role['id']));
-					
-					$monCivil=utf8_decode(trim($laDistribution->role['civil']));
-					$monType=utf8_decode(trim($laDistribution->role['type']));
-					$monStatut=utf8_decode(trim($laDistribution->role['statut']));
-					$monAge=utf8_decode(trim($laDistribution->role['age']));
-					$monStatutAmoureux=utf8_decode(trim($laDistribution->role['stat_amour']));
+$minNombreActes=100;
+$minNombrePersonnages=1000;
+$minNombreScenes=1000;
+$minNombreRepliques=10000;
+$minNombreVers=100000;
+$minNombreLignes=100000;
+$minNombreMots=100000;
+$minNombreCaracteres=1000000;
+$minNombrePersonnages=1000;
 
-					$nombrePersonnages = $nombrePersonnages + 1;
-					
-					//$varPersonnages=$varPersonnages.'\r\n<role civil="'.$monCivil.'" type="'.$monType.'" id="'.$monRoleId.'" statut="'.$monStatut.'">'.$monRole.'</role>';
-					$varPersonnages=$varPersonnages.'<role civil="'.$monCivil.'" id="'.$monRoleId.'" statut="'.$monStatut.'" type="'.$monType.'" age="'.$monAge.'">'.$monRole.'</role>';
-					
+$medNombreActes=0;
+$medNombrePersonnages=0;
+$medNombreScenes=0;
+$medNombreRepliques=0;
+$medNombreVers=0;
+$medNombreLignes=0;
+$medNombreMots=0;
+$medNombreCaracteres=0;
+$medNombrePersonnages=0;
+$auteur='';
+
+while ($file = readdir($handle)) {
+	// ici on passe les fichiers qui ne nous concerne pas
+	if ($file[0] == ".") continue;
+	// on ne parse pas le php
+	if ($file == basename(__FILE__)) continue;
+	if ($file == basename($metafile)) continue;
+
+	$z++;
+	$nombreActes=0;
+	$nombrePersonnages=0;
+	$nombreScenes=0;
+	$nombreRepliques=0;
+	$nombreMots=0;
+	$nombreVers=0;
+	$nombreLignes=0;
+	$nombreCaracteres=0;
+	$nombrePersonnages=0;
+	$nombrePhrase=0;
+	$totalNombreMots = 0;
+	$totalNombreCaracteres = 0;
+	$totalNombreLignes = 0;
+
+	// FG, dossier hard codé
+	$nomFichierTexte=$docdir.$file;
+	// si utilisé en ligne de commande
+	if (STDERR) fwrite(STDERR, "\n".$nomFichierTexte);
+
+	$contenuFichierTexte=file_get_contents ($nomFichierTexte);
+	$xmlContenuFichierTexte=simplexml_load_string( $contenuFichierTexte);
+	$titre=utf8_decode(trim($xmlContenuFichierTexte->text->front->docTitle->titlePart));
+	$auteur=trim($xmlContenuFichierTexte->text->front->docAuthor['id']);
+	$lAuteur=utf8_decode($auteur);
+	$laBio=trim($xmlContenuFichierTexte->text->front->docAuthor['bio']);
+	$laDate=trim($xmlContenuFichierTexte->text->front->docDate['value']);
+	$naissance=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['born']));
+	$lieu_naissance=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['born_location']));
+	$deces=trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['death']);
+	$lieu_deces=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['death_location']));
+	$academie=trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['academie']);
+
+
+	$permalien=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->permalien));
+	$monGenre=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->genre));
+	$monInspiration=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->inspiration));
+	$maStructure=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->structure));
+	$monTypeTexte=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->type));
+	$maPeriode=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->periode);
+	$maTaille=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->taille);
+
+	$set_location=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['location']));
+	$set_country=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['country']));
+	$set_periode=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['periode']));
+
+	$premiere_location=utf8_decode(trim($xmlContenuFichierTexte->text->front->performance->premiere['location']));
+	$premiere_date=utf8_decode(trim($xmlContenuFichierTexte->text->front->performance->premiere['date']));
+
+
+	//************ PERSONNAGES
+	$varPersonnages="";
+	foreach ($xmlContenuFichierTexte->text->front->castList as $groupeDistribution) {
+		foreach ($groupeDistribution->castItem as $laDistribution) {
+
+			$monType="---";
+			$monStatut="---";
+			$monAge="---";
+			$monCivil="---";
+
+			$monRole=utf8_decode(trim($laDistribution->role));
+			$monRoleId=utf8_decode(trim($laDistribution->role['id']));
+
+			$monCivil=utf8_decode(trim($laDistribution->role['civil']));
+			$monType=utf8_decode(trim($laDistribution->role['type']));
+			$monStatut=utf8_decode(trim($laDistribution->role['statut']));
+			$monAge=utf8_decode(trim($laDistribution->role['age']));
+			$monStatutAmoureux=utf8_decode(trim($laDistribution->role['stat_amour']));
+
+			$nombrePersonnages = $nombrePersonnages + 1;
+
+			//$varPersonnages=$varPersonnages.'\r\n<role civil="'.$monCivil.'" type="'.$monType.'" id="'.$monRoleId.'" statut="'.$monStatut.'">'.$monRole.'</role>';
+			$varPersonnages=$varPersonnages.'<role civil="'.$monCivil.'" id="'.$monRoleId.'" statut="'.$monStatut.'" type="'.$monType.'" age="'.$monAge.'">'.$monRole.'</role>';
+
+		}
+	}
+	//*********** Fin PERSONNAGE
+	if ($nombrePersonnages > $maxNombrePersonnages) $maxNombrePersonnages = $nombrePersonnages;
+	if ($nombrePersonnages < $minNombrePersonnages) $minNombrePersonnages = $nombrePersonnages;
+	$totalNombrePersonnages = $totalNombrePersonnages + $nombrePersonnages;
+	foreach ($xmlContenuFichierTexte->text->body->div1 as $acte) {
+		$nombreActes = $nombreActes + 1;
+		foreach ($acte->div2 as $scene) {
+			$nombreScenes = $nombreScenes + 1;
+			foreach ($scene->sp as $sp) {
+				$nombreRepliques = $nombreRepliques + 1;
+				// PROSE
+				foreach ($sp->p as $paragraphe) {
+					foreach ($paragraphe->s as $ligne) {
+						$nombreLignes = $nombreLignes + 1;
+						$nombrePhrase = $nombrePhrase+1;
+						$lignePlate=preg_replace( "/<[^>]*>/", "", $ligne->asXML());
+						$lignePlate=utf8_decode($lignePlate);
+						$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
+						$nombreMots = count($motsDeLaLigne);
+
+						$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
+						$totalNombreMots = $totalNombreMots + $nombreMots;
+						$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
+						$totalNombreLignes = $totalNombreLignes + 1;
+					}
 				}
-			}
-			//*********** Fin PERSONNAGE
-			if ($nombrePersonnages > $maxNombrePersonnages) $maxNombrePersonnages = $nombrePersonnages;
-			if ($nombrePersonnages < $minNombrePersonnages) $minNombrePersonnages = $nombrePersonnages;
-			$totalNombrePersonnages = $totalNombrePersonnages + $nombrePersonnages;
-		foreach ($xmlContenuFichierTexte->text->body->div1 as $acte) {
-			$nombreActes = $nombreActes + 1;
-			foreach ($acte->div2 as $scene) {
-				$nombreScenes = $nombreScenes + 1;
-				foreach ($scene->sp as $sp) {
-					$nombreRepliques = $nombreRepliques + 1;
-					foreach ($sp->l as $ligne) {
+				// VERS
+				foreach ($sp->l as $ligne) {
+					$nombreLignes = $nombreLignes + 1;
+					// TEI Correct
+					if (isset($ligne['n'])) $nombreVers = trim($ligne['n']);
+					// TC déprécié
+					else if (isset($ligne['id'])) $nombreVers = trim($ligne['id']);
+					$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
+					$lignePlate=utf8_decode($lignePlate);
+					//$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
+					$motsDeLaLigne = preg_split("/[\s?!.': ;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
+					$nombreMots = count($motsDeLaLigne);
+					// attention, strlen ne marche pas pour UTF-8
+					$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
+					$totalNombreMots = $totalNombreMots + $nombreMots;
+					$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
+					$totalNombreLignes = $totalNombreLignes + 1;
+				}
+				// simplexml bloque avec trop de hiérarchie, bouvle dédoublée
+				foreach ($sp->poem as $poem) {
+					foreach ($poem->lg->l as $ligne) {
 						$nombreLignes = $nombreLignes + 1;
-						$nombreVers = trim($ligne['id']);
-						if ($nombreVers =="") {
-							$nombreVers = trim($ligne['n']);
-						}
-						$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
-						$lignePlate=utf8_decode($lignePlate);
-						//$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
-						$motsDeLaLigne = preg_split("/[\s?!.': ;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
-						$nombreMots = count($motsDeLaLigne);
-							
-						$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
-						$totalNombreMots = $totalNombreMots + $nombreMots;
-						$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
-						$totalNombreLignes = $totalNombreLignes + 1;
-					}
-					foreach ($sp->poem->lg->l as $ligne) {
-						$nombreLignes = $nombreLignes + 1;
-						$nombreVers = trim($ligne['id']);
-						$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
-						$lignePlate=utf8_decode($lignePlate);
-						$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
-						$nombreMots = count($motsDeLaLigne);
-							
-						$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
-						$totalNombreMots = $totalNombreMots + $nombreMots;
-						$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
-						$totalNombreLignes = $totalNombreLignes + 1;
-					}
-					foreach ($sp->lg->lg->l as $ligne) {
-						$nombreLignes = $nombreLignes + 1;
-						$nombreVers = trim($ligne['id']);
-						$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
-						$lignePlate=utf8_decode($lignePlate);
-						$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
-						$nombreMots = count($motsDeLaLigne);
-							
-						$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
-						$totalNombreMots = $totalNombreMots + $nombreMots;
-						$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
-						$totalNombreLignes = $totalNombreLignes + 1;
-					}
+						// FG, TEI Correct
+	 					if (isset($ligne['n'])) $nombreVers = trim($ligne['n']);
+						// FG, TC déprécié
+	 					else if (isset($ligne['id'])) $nombreVers = trim($ligne['id']);
 
-					foreach ($sp->p as $paragraphe) {
-						foreach ($paragraphe->s as $ligne) {
+						$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
+						$lignePlate=utf8_decode($lignePlate);
+						$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
+						$nombreMots = count($motsDeLaLigne);
+
+						$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
+						$totalNombreMots = $totalNombreMots + $nombreMots;
+						$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
+						$totalNombreLignes = $totalNombreLignes + 1;
+					}
+				}
+				// <lg> suppose qu’il s’agit d’un poème
+				foreach ($sp->lg as $poem) {
+					// vérifier ce que contient el poème avant de boucler
+					if ($poem->lg) {
+						foreach ($poem->lg->l as $ligne) {
 							$nombreLignes = $nombreLignes + 1;
-							$nombrePhrase = $nombrePhrase+1;
-							$lignePlate=preg_replace( "/<[^>]*>/", "", $ligne->asXML());
+							$nombreVers = trim($ligne['id']);
+							$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
 							$lignePlate=utf8_decode($lignePlate);
 							$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
 							$nombreMots = count($motsDeLaLigne);
-							
+
+							$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
+							$totalNombreMots = $totalNombreMots + $nombreMots;
+							$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
+							$totalNombreLignes = $totalNombreLignes + 1;
+						}
+					}
+					else if ($poem->l) {
+						foreach ($poem->l as $ligne) {
+							$nombreLignes = $nombreLignes + 1;
+							$nombreVers = trim($ligne['id']);
+							$lignePlate = preg_replace( "/<[^>]*>/", "", $ligne->asXML());
+							$lignePlate=utf8_decode($lignePlate);
+							$motsDeLaLigne = preg_split("/[\s?!.':;,\"]+/",$lignePlate, -1,PREG_SPLIT_NO_EMPTY);
+							$nombreMots = count($motsDeLaLigne);
+
 							$nombreCaracteres = $nombreCaracteres + strlen($lignePlate);
 							$totalNombreMots = $totalNombreMots + $nombreMots;
 							$totalNombreCaracteres = $totalNombreCaracteres + strlen($lignePlate);
@@ -212,10 +258,12 @@ if ($handle = opendir('../documents')) {
 				}
 			}
 		}
+	}
+
 		$totalNombreRepliques = $totalNombreRepliques + $nombreRepliques;
 		if ($nombreRepliques > $maxNombreRepliques) $maxNombreRepliques=$nombreRepliques;
 		if ($nombreRepliques < $minNombreRepliques) $minNombreRepliques=$nombreRepliques;
-		$tableauRepliques[] = $nombresRepliques;
+		$tableauRepliques[] = $nombreRepliques; // [FG] était nombresRepliques, avec s à nombre
 		$totalNombreActes = $totalNombreActes + $nombreActes;
 		if ($nombreActes > $maxNombreActes) $maxNombreActes=$nombreActes;
 		if ($nombreActes < $minNombreActes) $minNombreActes=$nombreActes;
@@ -235,9 +283,9 @@ if ($handle = opendir('../documents')) {
 		if ($nombreCaracteres < $minNombreCaracteres) $minNombreCaracteres=$nombreCaracteres;
 		if ($nombreLignes > $maxNombreLignes) $maxNombreLignes=$nombreLignes;
 		if ($nombreLignes < $minNombreLignes) $minNombreLignes=$nombreLignes;
-		
+
 		echo "=== $auteur - $titre";
-		
+
 		fwrite($fsortie, "<record id='$n' file='$file'>
 		<auteur>
 			<name>$lAuteur</name>
@@ -246,7 +294,7 @@ if ($handle = opendir('../documents')) {
 			<death>$deces</death>
 			<deathLocation>$lieu_deces</deathLocation>
 			<academie>$academie</academie>
-			<bio>$laBio</bio> 
+			<bio>$laBio</bio>
 		</auteur>
 		<texte>
 			<titre date='$laDate'>$titre</titre>
@@ -277,7 +325,7 @@ if ($handle = opendir('../documents')) {
 			<nbPhrases>$nombreLignes</nbPhrases>
 			<nbVers>$nombreVers</nbVers>
 			<nbMots>$totalNombreMots</nbMots>");
-			
+
 		if ($nombreCaracteres < 20000) {
 			$leType="0-20000";
 		}
@@ -309,7 +357,7 @@ if ($handle = opendir('../documents')) {
 				}
 			}
 		}
-	
+
 		fwrite($fsortie, "	<nbCaracteres type='$leType'>$nombreCaracteres</nbCaracteres>");
 		if ($nombreVers > 0) {
 			$fractionnement=(($nombreLignes-$nombreVers)/$nombreVers)*100;
@@ -341,10 +389,8 @@ if ($handle = opendir('../documents')) {
 		</statistique>
 		</record>\n");
 		$n=$n+1;
-        }
-    }
-    closedir($handle);
-}
+} // fin de boucle dans le dossier
+closedir($handle);
 $n=$n-1;
 // FERMETURE DU FICHIER
 fwrite($fsortie, "</body>
