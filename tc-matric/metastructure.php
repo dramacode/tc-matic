@@ -115,7 +115,16 @@ while ($file = readdir($handle)) {
 	$lieu_deces=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['death_location']));
 	$academie=trim($xmlContenuFichierTexte->teiHeader->fileDesc->titleStmt->author['academie']);
 
-
+if ($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc) {
+	$permalien=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->permalien));
+	$monGenre=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->genre));
+	$monInspiration=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->inspiration));
+	$maStructure=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->structure));
+	$monTypeTexte=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->type));
+	$maPeriode=trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->periode);
+	$maTaille=trim($xmlContenuFichierTexte->teiHeader->fileDesc->sourceDesc->taille);	
+}
+else if ($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc) {
 	$permalien=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->permalien));
 	$monGenre=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->genre));
 	$monInspiration=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->inspiration));
@@ -123,6 +132,7 @@ while ($file = readdir($handle)) {
 	$monTypeTexte=utf8_decode(trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->type));
 	$maPeriode=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->periode);
 	$maTaille=trim($xmlContenuFichierTexte->teiHeader->fileDesc->SourceDesc->taille);
+}
 
 	$set_location=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['location']));
 	$set_country=utf8_decode(trim($xmlContenuFichierTexte->text->front->set['country']));
